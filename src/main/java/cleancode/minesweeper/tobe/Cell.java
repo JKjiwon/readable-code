@@ -4,56 +4,78 @@ public class Cell {
 
     public static final String FLAG_SIGN = "⚑";
     public static final String LAND_MINE_SIGN = "☼";
-    public static final String CLOSED_CELL_SIGN = "□";
-    public static final String OPENED_CELL_SIGN = "■";
+    public static final String UNCHECKED_SIGN = "□";
+    public static final String EMPTY_SIGN = "■";
 
-    private final String sign;
     private int nearByLandMindCount;
     private boolean isLandMine;
+    private boolean isFlagged;
+    private boolean isOpened;
 
-    private Cell(String sign, int nearByLandMindCount, boolean isLandMine) {
-        this.sign = sign;
+
+    private Cell(int nearByLandMindCount, boolean isLandMine, boolean isFlagged, boolean isOpened) {
         this.nearByLandMindCount = nearByLandMindCount;
         this.isLandMine = isLandMine;
+        this.isFlagged = isFlagged;
+        this.isOpened = isOpened;
     }
 
     // 정적 펙토리 메서드
-    public static Cell of(String sign, int nearByLandMindCount, boolean isLandMine) {
-        return new Cell(sign, nearByLandMindCount, isLandMine);
+    public static Cell of(int nearByLandMindCount, boolean isLandMine, boolean isFlagged, boolean isOpened) {
+        return new Cell(nearByLandMindCount, isLandMine, isFlagged, isOpened);
     }
 
-    // Cell이 가진 속성: 근처 지뢰 숫자, 지뢰 여부
-    // Cell의 상태: 깃발 유무, 열렸다/닫혔다, 사용자가 확인함
-
-    public static Cell ofFlag() {
-        return of(FLAG_SIGN, 0, false);
+    public static Cell create() {
+        return of(0, false, false, false);
     }
 
-    public static Cell ofLandMine() {
-        return of(LAND_MINE_SIGN, 0, false);
+    public void turnOnLandMine() {
+        this.isLandMine = true;
     }
 
-    public static Cell ofClosed() {
-        return of(CLOSED_CELL_SIGN, 0, false);
+    public void updateNearbyLandMindCount(int count) {
+        this.nearByLandMindCount = count;
     }
 
-    public static Cell ofOpened() {
-        return of(OPENED_CELL_SIGN, 0, false);
+    public void flag() {
+        isFlagged = true;
     }
 
-    public static Cell ofNearByLandMindCount(int count) {
-        return of(String.valueOf(count), 0,false);
+    public void open() {
+        this.isOpened = true;
+    }
+
+    public boolean isChecked() {
+        return isFlagged || isOpened;
+    }
+
+    public boolean isLandMine() {
+        return isLandMine;
+    }
+
+    public boolean isOpened() {
+        return isOpened;
+    }
+
+    public boolean hasLandMineCount() {
+        return this.nearByLandMindCount != 0;
     }
 
     public String getSign() {
-        return sign;
-    }
+        if (isOpened) {
+            if (isLandMine) {
+                return LAND_MINE_SIGN;
+            }
+            if (hasLandMineCount()) {
+                return String.valueOf(nearByLandMindCount);
+            }
+            return EMPTY_SIGN;
+        }
 
-    public boolean isClosed() {
-        return CLOSED_CELL_SIGN.equals(this.sign);
-    }
+        if (isFlagged) {
+            return FLAG_SIGN;
+        }
 
-    public boolean doesNotClosed() {
-        return !isClosed();
+        return UNCHECKED_SIGN;
     }
 }
