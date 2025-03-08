@@ -4,6 +4,7 @@ import cleancode.minesweeper.tobe.cell.Cell;
 import cleancode.minesweeper.tobe.cell.EmptyCell;
 import cleancode.minesweeper.tobe.cell.LandMineCell;
 import cleancode.minesweeper.tobe.cell.NumberCell;
+import cleancode.minesweeper.tobe.gamelevel.GameLevel;
 
 import java.util.Arrays;
 import java.util.Random;
