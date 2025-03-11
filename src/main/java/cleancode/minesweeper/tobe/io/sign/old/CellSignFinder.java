@@ -1,6 +1,8 @@
-package cleancode.minesweeper.tobe.io.sign;
+package cleancode.minesweeper.tobe.io.sign.old;
 
 import cleancode.minesweeper.tobe.cell.CellSnapshot;
+import cleancode.minesweeper.tobe.io.sign.CellSignProvidable;
+import cleancode.minesweeper.tobe.io.sign.UncheckedCellSignProvider;
 
 import java.util.List;
 
