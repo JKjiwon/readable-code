@@ -63,8 +63,8 @@ public class GameBoard {
         return board[0].length;
     }
 
-    public String getSign(CellPosition cellPosition) {
-        return findCell(cellPosition).getSign();
+    public CellSnapshot getSnapshot(CellPosition cellPosition) {
+        return findCell(cellPosition).getSnapshot();
     }
 
     public boolean isLandMineCellAt(CellPosition cellPosition) {
