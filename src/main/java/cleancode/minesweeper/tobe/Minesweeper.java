@@ -17,7 +17,7 @@ public class Minesweeper implements GameInitializable, GameRunnable {
     // Minesweeper 입장에서는 input/output 방식을 고려하지 않아도 된다.
     private final InputHandler inputHandler;
     private final OutputHandler outputHandler;
-    private int gameStatus = 0; // 0: 게임 중, 1: 승리, -1: 패배
+    //    private int gameStatus = 0; // 0: 게임 중, 1: 승리, -1: 패배
 
     public Minesweeper(GameConfig gameConfig) {
         this.gameBoard = new GameBoard(gameConfig.getGameLevel());
@@ -33,18 +33,9 @@ public class Minesweeper implements GameInitializable, GameRunnable {
     @Override
     public void run() {
         outputHandler.showGameStartComments();
-        while (true) {
+        while (gameBoard.isInProgress()) {
             try {
                 outputHandler.showBoard(gameBoard);
-
-                if (doesUserWinTheGame()) {
-                    outputHandler.showGameWinningComment();
-                    break;
-                }
-                if (doesUserLoseTheGame()) {
-                    outputHandler.showGameLosingComment();
-                    break;
-                }
 
                 CellPosition cellPosition = getCellIPositionFromUser();
                 UserAction userAction = getUserActionInputFromUser();
@@ -55,32 +46,28 @@ public class Minesweeper implements GameInitializable, GameRunnable {
                 outputHandler.showSimpleMessage("프로그램에 문제가 생겼습니다.");
             }
         }
+
+        outputHandler.showBoard(gameBoard);
+        if (gameBoard.isWinStatus()) {
+            outputHandler.showGameWinningComment();
+        }
+        if (gameBoard.isLoseStatus()) {
+            outputHandler.showGameLosingComment();
+        }
     }
 
     private void actOnCell(CellPosition cellPosition, UserAction userAction) {
         if (userAction.isFlag()) {
             gameBoard.flagAt(cellPosition);
-            checkIfGameIsOver();
             return;
         }
 
         if (userAction.isOpen()) {
-            if (gameBoard.isLandMineCellAt(cellPosition)) {
-                gameBoard.openAt(cellPosition);
-                changeGameStatusToLose();
-                return;
-            }
-
-            gameBoard.openSurroundedCells(cellPosition);
-            checkIfGameIsOver();
+            gameBoard.openAt(cellPosition);
             return;
         }
 
-        outputHandler.showSimpleMessage("잘못된 번호를 선택하셨습니다.");
-    }
-
-    private void changeGameStatusToLose() {
-        gameStatus = -1;
+        throw new GameException("잘못된 번호를 선택하셨습니다.");
     }
 
     private UserAction getUserActionInputFromUser() {
@@ -96,25 +83,4 @@ public class Minesweeper implements GameInitializable, GameRunnable {
         }
         return cellPosition;
     }
-
-    private boolean doesUserLoseTheGame() {
-        return gameStatus == -1;
-    }
-
-    private boolean doesUserWinTheGame() {
-        return gameStatus == 1;
-    }
-
-    // tip: 함수 내에서 여러가지 일을 한다면, 모든 일들을 포함하는 함수명을 짓는게 좋다.
-    private void checkIfGameIsOver() {
-        if (gameBoard.isAllCellIsChecked()) {
-            changeGameStatusToWin();
-        }
-    }
-
-    // tip: 구현이 한줄이라도 구현을 추상할 수 있다면, 메서드로 만드는 것이 좋다.
-    private void changeGameStatusToWin() {
-        gameStatus = 1;
-    }
-
 }
