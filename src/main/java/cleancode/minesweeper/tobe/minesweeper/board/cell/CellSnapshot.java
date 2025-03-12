@@ -36,10 +36,6 @@ public class CellSnapshot {
         return new CellSnapshot(UNCHECKED, 0);
     }
 
-    public CellSnapshotStatus getStatus() {
-        return status;
-    }
-
     public int getNearbyLandMineCount() {
         return nearbyLandMineCount;
     }
