@@ -4,28 +4,27 @@ import cleancode.studycafe.tobe.exception.AppException;
 import cleancode.studycafe.tobe.io.InputHandler;
 import cleancode.studycafe.tobe.io.OutputHandler;
 import cleancode.studycafe.tobe.model.StudyCafeLockerPass;
-import cleancode.studycafe.tobe.model.StudyCafePass;
+import cleancode.studycafe.tobe.model.StudyCafePassOrder;
 import cleancode.studycafe.tobe.model.StudyCafePassType;
+import cleancode.studycafe.tobe.model.StudyCafeSeatPass;
 import cleancode.studycafe.tobe.repository.StudyCafeLockerPassRepository;
-import cleancode.studycafe.tobe.repository.StudyCafePassRepository;
+import cleancode.studycafe.tobe.repository.StudyCafeSeatPassRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public class StudyCafePassMachine {
 
     private final InputHandler inputHandler;
     private final OutputHandler outputHandler;
-    private final StudyCafePassRepository studyCafePassRepository;
+    private final StudyCafeSeatPassRepository studyCafeSeatPassRepository;
     private final StudyCafeLockerPassRepository studyCafeLockerPassRepository;
 
-    public StudyCafePassMachine(InputHandler inputHandler, OutputHandler outputHandler,
-                                StudyCafePassRepository studyCafePassRepository,
-                                StudyCafeLockerPassRepository studyCafeLockerPassRepository) {
+    public StudyCafePassMachine(InputHandler inputHandler, OutputHandler outputHandler, StudyCafeSeatPassRepository studyCafeSeatPassRepository, StudyCafeLockerPassRepository studyCafeLockerPassRepository) {
         this.inputHandler = inputHandler;
         this.outputHandler = outputHandler;
-        this.studyCafePassRepository = studyCafePassRepository;
+        this.studyCafeSeatPassRepository = studyCafeSeatPassRepository;
         this.studyCafeLockerPassRepository = studyCafeLockerPassRepository;
-
     }
 
     public void run() {
@@ -33,36 +32,10 @@ public class StudyCafePassMachine {
             outputHandler.showWelcomeMessage();
             outputHandler.showAnnouncement();
 
-            outputHandler.askPassTypeSelection();
-            StudyCafePassType studyCafePassType = inputHandler.getPassTypeSelectingUserAction();
-
-            if (studyCafePassType.isHourly()) {
-                List<StudyCafePass> hourlyPasses = getHourlyPasses();
-                outputHandler.showPassListForSelection(hourlyPasses);
-                StudyCafePass selectedPass = inputHandler.getSelectPass(hourlyPasses);
-                outputHandler.showPassOrderSummary(selectedPass, null);
-            } else if (studyCafePassType.isWeekly()) {
-                List<StudyCafePass> weeklyPasses = getWeeklyPasses();
-                outputHandler.showPassListForSelection(weeklyPasses);
-                StudyCafePass selectedPass = inputHandler.getSelectPass(weeklyPasses);
-                outputHandler.showPassOrderSummary(selectedPass, null);
-            } else if (studyCafePassType.isFixed()) {
-                List<StudyCafePass> fixedPasses = getFixedPasses();
-                outputHandler.showPassListForSelection(fixedPasses);
-                StudyCafePass selectedPass = inputHandler.getSelectPass(fixedPasses);
-                StudyCafeLockerPass lockerPass = getStudyCafeLockerPass(selectedPass);
-                boolean lockerSelection = false;
-                if (lockerPass != null) {
-                    outputHandler.askLockerPass(lockerPass);
-                    lockerSelection = inputHandler.getLockerSelection();
-                }
-
-                if (lockerSelection) {
-                    outputHandler.showPassOrderSummary(selectedPass, lockerPass);
-                } else {
-                    outputHandler.showPassOrderSummary(selectedPass, null);
-                }
-            }
+            StudyCafeSeatPass selectedSeatPass = selectSeatPass();
+            Optional<StudyCafeLockerPass> selectedLockerPass = selectLockerPass(selectedSeatPass);
+            StudyCafePassOrder order = StudyCafePassOrder.of(selectedSeatPass, selectedLockerPass.orElse(null));
+            outputHandler.showPassOrderSummary(order);
         } catch (AppException e) {
             outputHandler.showSimpleMessage(e.getMessage());
         } catch (Exception e) {
@@ -70,22 +43,30 @@ public class StudyCafePassMachine {
         }
     }
 
-    private StudyCafeLockerPass getStudyCafeLockerPass(StudyCafePass selectedPass) {
+    private Optional<StudyCafeLockerPass> selectLockerPass(StudyCafeSeatPass selectedSeatPass) {
+        if (selectedSeatPass.canNotUseLocker()) {
+            return Optional.empty();
+        }
+        StudyCafeLockerPass lockerPass = getStudyCafeLockerPass(selectedSeatPass);
+        outputHandler.askLockerPass(lockerPass);
+        boolean lockerSelected = inputHandler.getLockerSelection();
+        if (lockerSelected) {
+            return Optional.of(lockerPass);
+        }
+        return Optional.empty();
+    }
+
+    private StudyCafeSeatPass selectSeatPass() {
+        outputHandler.askPassTypeSelection();
+        StudyCafePassType studyCafePassType = inputHandler.getPassTypeSelectingUserAction();
+        List<StudyCafeSeatPass> seatPassCandidate = studyCafeSeatPassRepository.findAllByStudyCafePassType(studyCafePassType);
+        outputHandler.showPassListForSelection(seatPassCandidate);
+        return inputHandler.getSelectPass(seatPassCandidate);
+    }
+
+    private StudyCafeLockerPass getStudyCafeLockerPass(StudyCafeSeatPass selectedPass) {
         return studyCafeLockerPassRepository
                 .findByStudyCafePassTypeAndDuration(selectedPass.getPassType(), selectedPass.getDuration())
-                .orElseThrow(() -> new AppException("StudyCafeLockerPass(type=" + selectedPass.getPassType()
-                        + ", duration=" + selectedPass.getDuration() + ")를 찾을 수 없습니다."));
-    }
-
-    private List<StudyCafePass> getFixedPasses() {
-        return studyCafePassRepository.findAllByStudyCafePasType(StudyCafePassType.FIXED);
-    }
-
-    private List<StudyCafePass> getWeeklyPasses() {
-        return studyCafePassRepository.findAllByStudyCafePasType(StudyCafePassType.WEEKLY);
-    }
-
-    private List<StudyCafePass> getHourlyPasses() {
-        return studyCafePassRepository.findAllByStudyCafePasType(StudyCafePassType.HOURLY);
+                .orElseThrow(() -> new AppException("락커 이용권을 찾을 수 없습니다."));
     }
 }

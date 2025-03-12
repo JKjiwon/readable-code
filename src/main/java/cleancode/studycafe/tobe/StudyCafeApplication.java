@@ -4,9 +4,9 @@ import cleancode.studycafe.tobe.io.InputHandler;
 import cleancode.studycafe.tobe.io.OutputHandler;
 import cleancode.studycafe.tobe.io.StudyCafeFileHandler;
 import cleancode.studycafe.tobe.repository.FileBasedStudyCafeLockerPassRepository;
-import cleancode.studycafe.tobe.repository.FileBasedStudyCafeRepository;
+import cleancode.studycafe.tobe.repository.FileBasedStudyCafeSeatRepository;
 import cleancode.studycafe.tobe.repository.StudyCafeLockerPassRepository;
-import cleancode.studycafe.tobe.repository.StudyCafePassRepository;
+import cleancode.studycafe.tobe.repository.StudyCafeSeatPassRepository;
 
 public class StudyCafeApplication {
 
@@ -14,11 +14,10 @@ public class StudyCafeApplication {
         InputHandler inputHandler = new InputHandler();
         OutputHandler outputHandler = new OutputHandler();
         StudyCafeFileHandler studyCafeFileHandler = new StudyCafeFileHandler();
-        StudyCafePassRepository studyCafePassRepository = new FileBasedStudyCafeRepository(studyCafeFileHandler);
+        StudyCafeSeatPassRepository studyCafeSeatPassRepository = new FileBasedStudyCafeSeatRepository(studyCafeFileHandler);
         StudyCafeLockerPassRepository studyCafeLockerPassRepository = new FileBasedStudyCafeLockerPassRepository(studyCafeFileHandler);
 
-        StudyCafePassMachine studyCafePassMachine = new StudyCafePassMachine(inputHandler, outputHandler, studyCafePassRepository, studyCafeLockerPassRepository);
-
+        StudyCafePassMachine studyCafePassMachine = new StudyCafePassMachine(inputHandler, outputHandler, studyCafeSeatPassRepository, studyCafeLockerPassRepository);
 
         studyCafePassMachine.run();
     }
