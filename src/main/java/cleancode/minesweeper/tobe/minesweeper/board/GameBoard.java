@@ -128,6 +128,7 @@ public class GameBoard {
                 .filter(position -> position.isColIndexLessThan(ColSize))
                 .toList();
     }
+
     private void openOneCellAt(CellPosition cellPosition) {
         findCell(cellPosition).open();
     }
