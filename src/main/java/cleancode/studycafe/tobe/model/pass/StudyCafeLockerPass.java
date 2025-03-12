@@ -1,4 +1,4 @@
-package cleancode.studycafe.tobe.model;
+package cleancode.studycafe.tobe.model.pass;
 
 public class StudyCafeLockerPass extends StudyCafePass {
     private StudyCafeLockerPass(StudyCafePassType passType, int duration, int price) {

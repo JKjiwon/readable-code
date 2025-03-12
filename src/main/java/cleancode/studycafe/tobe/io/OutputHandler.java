@@ -1,6 +1,11 @@
 package cleancode.studycafe.tobe.io;
 
-import cleancode.studycafe.tobe.model.*;
+import cleancode.studycafe.tobe.exception.AppException;
+import cleancode.studycafe.tobe.model.order.StudyCafePassOrder;
+import cleancode.studycafe.tobe.model.pass.StudyCafeLockerPass;
+import cleancode.studycafe.tobe.model.pass.StudyCafePass;
+import cleancode.studycafe.tobe.model.pass.StudyCafePassType;
+import cleancode.studycafe.tobe.model.pass.StudyCafeSeatPass;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +49,10 @@ public class OutputHandler {
 
     public void showSimpleMessage(String message) {
         System.out.println(message);
+    }
+
+    public void showExceptionMessage(AppException e) {
+        System.out.println(e.getMessage());
     }
 
     public void showPassOrderSummary(StudyCafePassOrder studyCafePassOrder) {

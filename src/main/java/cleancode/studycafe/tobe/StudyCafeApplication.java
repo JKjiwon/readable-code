@@ -17,7 +17,8 @@ public class StudyCafeApplication {
         StudyCafeSeatPassRepository studyCafeSeatPassRepository = new FileBasedStudyCafeSeatRepository(studyCafeFileHandler);
         StudyCafeLockerPassRepository studyCafeLockerPassRepository = new FileBasedStudyCafeLockerPassRepository(studyCafeFileHandler);
 
-        StudyCafePassMachine studyCafePassMachine = new StudyCafePassMachine(inputHandler, outputHandler, studyCafeSeatPassRepository, studyCafeLockerPassRepository);
+        StudyCafePassMachine studyCafePassMachine = new StudyCafePassMachine(inputHandler, outputHandler,
+                studyCafeSeatPassRepository, studyCafeLockerPassRepository);
 
         studyCafePassMachine.run();
     }

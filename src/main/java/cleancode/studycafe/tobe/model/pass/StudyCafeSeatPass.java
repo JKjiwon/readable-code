@@ -1,4 +1,4 @@
-package cleancode.studycafe.tobe.model;
+package cleancode.studycafe.tobe.model.pass;
 
 public class StudyCafeSeatPass extends StudyCafePass {
     private final double discountRate;
@@ -17,6 +17,7 @@ public class StudyCafeSeatPass extends StudyCafePass {
     }
 
     public boolean canNotUseLocker() {
-        return !getPassType().isFixed();
+        return !passType.isFixed();
     }
+
 }

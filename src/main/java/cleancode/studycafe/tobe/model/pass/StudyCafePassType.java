@@ -1,4 +1,4 @@
-package cleancode.studycafe.tobe.model;
+package cleancode.studycafe.tobe.model.pass;
 
 public enum StudyCafePassType {
 
@@ -10,14 +10,6 @@ public enum StudyCafePassType {
 
     StudyCafePassType(String description) {
         this.description = description;
-    }
-
-    public boolean isHourly() {
-        return this == HOURLY;
-    }
-
-    public boolean isWeekly() {
-        return this == WEEKLY;
     }
 
     public boolean isFixed() {
